@@ -1,0 +1,17 @@
+redisHost: 127.0.0.1
+kafkaConfiguration:
+  producer:
+    bootstrap.servers: localhost:9092
+    metadata.broker.list: localhost:9092
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+    producer.type: sync
+
+
+logging:
+  level: INFO
+  appenders:
+      - type: console
+        threshold: ALL
+        timeZone: UTC
+        target: stdout

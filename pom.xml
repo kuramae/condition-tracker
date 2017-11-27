@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.pluraliseseverythings</groupId>
+    <artifactId>condition-tracker</artifactId>
+    <version>${project.version}</version>
+    <packaging>pom</packaging>
+    <name>Parent project</name>
+
+    <properties>
+        <dropwizard.version>1.2.0</dropwizard.version>
+        <auto-value.version>1.5</auto-value.version>
+        <metrics-annotation.version>3.0.2</metrics-annotation.version>
+        <kafka-clients.version>1.0.0</kafka-clients.version>
+        <jedis.version>2.8.1</jedis.version>
+        <dropwizard-java8.version>0.9.0-1</dropwizard-java8.version>
+        <project.version>0.1-SNAPSHOT</project.version>
+    </properties>
+
+
+    <modules>
+        <module>medi</module>
+        <module>medi-api</module>
+        <module>conditio</module>
+        <module>events</module>
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
