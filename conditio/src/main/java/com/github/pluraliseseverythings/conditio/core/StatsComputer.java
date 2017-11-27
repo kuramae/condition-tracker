@@ -16,11 +16,7 @@ public class StatsComputer {
     }
 
     /**
-     * The consumer returned creates buckets of 1 second.
-     * If the bucket exists, it adds the new condition and overrides.
-     * This also uses optimistic concurrency control.
-     * TODO: A clever move would be to have kafka partitions based on the timestamp
-     * this way we'd avoid conflicts completely and we could cache a lot.
+     * See the addPatientCondition for the logic
      * @return Returns a consumer that knows what to do with the events
      */
     public Consumer<Event> eventConsumer() {
