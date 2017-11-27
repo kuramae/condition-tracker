@@ -7,8 +7,11 @@ import com.github.pluraliseseverythings.medi.api.Person;
 import com.github.pluraliseseverythings.medi.exception.DomainConstraintViolated;
 import com.github.pluraliseseverythings.medi.exception.InternalFormatException;
 import com.github.pluraliseseverythings.medi.exception.StorageException;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Map;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Response;
 import redis.clients.jedis.Transaction;
 import redis.clients.util.Pool;
 
@@ -64,7 +67,7 @@ public class PersonDAO {
     }
 
     // Uses optimistic concurrency control to check the set size
-    public int addPatient(String doctorId, String patientId) throws DomainConstraintViolated, StorageException {
+    public Map<String, Long> addPatient(String doctorId, String patientId) throws DomainConstraintViolated, StorageException {
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.watch(Ids.id(DOCTOR, doctorId), Ids.id(PATIENT, patientId));
             Set<String> patients = jedis.smembers(Ids.id(DOCTOR_PATIENTS, doctorId));
@@ -77,10 +80,11 @@ public class PersonDAO {
             }
             Transaction transaction = jedis.multi();
             // If these change then fail
-            transaction.sadd(Ids.id(DOCTOR_PATIENTS, doctorId), patientId);
-            transaction.sadd(Ids.id(PATIENT_DOCTORS, patientId), doctorId);
+            Response<Long> r1 = transaction
+                    .sadd(Ids.id(DOCTOR_PATIENTS, doctorId), patientId);
+            Response<Long> r2 = transaction.sadd(Ids.id(PATIENT_DOCTORS, patientId), doctorId);
             RedisUtil.checkResult(transaction.exec());
-            return patients.size();
+            return ImmutableMap.of("patients_with_doctor", r1.get(), "doctors_with_patient", r2.get());
         }
     }
 

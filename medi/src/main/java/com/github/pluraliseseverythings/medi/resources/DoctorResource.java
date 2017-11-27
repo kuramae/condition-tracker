@@ -7,6 +7,7 @@ import com.github.pluraliseseverythings.medi.db.PersonDAO;
 import com.github.pluraliseseverythings.medi.exception.DomainConstraintViolated;
 import com.github.pluraliseseverythings.medi.exception.StorageException;
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import pluraliseseverythings.events.EventServiceProducer;
 import pluraliseseverythings.events.SaveEventException;
 import pluraliseseverythings.events.api.Event;
@@ -47,7 +48,7 @@ public class DoctorResource {
     @Timed
     @Path("{doctorId}/patient/{patientId}")
     @Produces(MediaType.TEXT_PLAIN)
-    public int addPatient(@PathParam("doctorId") String doctorId,
+    public Map<String, Long> addPatient(@PathParam("doctorId") String doctorId,
                           @PathParam("patientId")String patientId) throws DomainConstraintViolated, StorageException, SaveEventException, JsonProcessingException {
         eventServiceProducer.saveEvent(Event.builder()
                 .type("add_patient")
