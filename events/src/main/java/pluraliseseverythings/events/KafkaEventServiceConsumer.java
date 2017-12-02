@@ -1,5 +1,6 @@
 package pluraliseseverythings.events;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -24,15 +25,26 @@ public class KafkaEventServiceConsumer implements EventServiceConsumer {
     }
 
     @Override
-    public Runnable consume(String topic, Consumer<Event> consumerFunction, ExecutorService executorService) {
+    public <T> Runnable consume(String topic, Consumer<Event<T>> consumerFunction, ExecutorService executorService, Class<T> klass) {
         return () -> {
             try {
+                LOG.info("Subscribing to topic {}", topic);
+                LOG.info("Topics available {}", consumer.listTopics());
                 consumer.subscribe(Collections.singleton(topic));
+
                 while (true) {
                     ConsumerRecords<String, String> records = consumer.poll(Long.MAX_VALUE);
+                    LOG.info("Consuming {} records", records.count());
                     for (ConsumerRecord<String, String> record : records) {
                         try {
-                            MAPPER.readValue(record.value(), Event.class);
+                            if (record.value() == null) {
+                                LOG.error("Null value for record {}", record);
+                            } else {
+                                Event<T> value = MAPPER.readValue(record.value(),
+                                        MAPPER.getTypeFactory().constructType(Event.class, klass)
+                                );
+                                consumerFunction.accept(value);
+                            }
                         } catch (IOException e) {
                             // TODO this is a classic data loss point. You change serialization
                             // and all the data is discarded here. We are stopping consuming here
@@ -41,6 +53,7 @@ public class KafkaEventServiceConsumer implements EventServiceConsumer {
                             break;
                         }
                     }
+                    consumer.commitAsync();
                 }
             } catch (WakeupException e) {
                 // ignore for shutdown

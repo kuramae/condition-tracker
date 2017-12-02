@@ -6,5 +6,5 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 public interface EventServiceConsumer {
-    Runnable consume(String alert, Consumer<Event> consumer, ExecutorService executorService);
+    <T> Runnable consume(String alert, Consumer<Event<T>> consumer, ExecutorService executorService, Class<T> klass);
 }

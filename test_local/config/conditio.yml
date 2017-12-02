@@ -1,0 +1,43 @@
+redisHost: 127.0.0.1
+kafkaConfiguration:
+  consumer:
+    bootstrap.servers: 127.0.0.1:9092
+    metadata.broker.list: 127.0.0.1:9092
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer.type: sync
+    group.id: conditio_consumers
+    auto.offset.reset: earliest
+
+mediClientURI: http://localhost:8080
+
+mediClientConfiguration:
+  minThreads: 1
+  maxThreads: 128
+  gzipEnabled: true
+  gzipEnabledForRequests: true
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8960
+  adminConnectors:
+    - type: http
+      port: 8961
+
+logging:
+  level: INFO
+  appenders:
+      - type: console
+        threshold: ALL
+        timeZone: UTC
+        target: stdout
+      - type: file
+        currentLogFilename: /tmp/conditio.log
+        threshold: ALL
+        archive: true
+        archivedLogFilenamePattern: /tmp/conditio-%d.log
+        archivedFileCount: 5
+        timeZone: UTC
+
+

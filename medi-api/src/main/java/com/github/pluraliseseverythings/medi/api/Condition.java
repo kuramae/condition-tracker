@@ -19,10 +19,6 @@ public abstract class Condition {
     public Condition() {
     }
 
-    @Nullable
-    @JsonProperty(ID)
-    public abstract String getId();
-
     @NotNull
     @JsonProperty(NAME)
     public abstract String getName();
@@ -35,10 +31,8 @@ public abstract class Condition {
     @JsonProperty(DESCRIPTION)
     public abstract String getDescription();
 
-    public static Condition makeId(Condition condition) {
-        String existingId = condition.getId();
-        String partial = existingId == null ? Ids.uniqueID(): existingId;
-        return condition.toBuilder().id(partial).build();
+    public String getId() {
+        return getName().toLowerCase().replace(" ", "_");
     }
 
     public abstract Builder toBuilder();
@@ -50,9 +44,6 @@ public abstract class Condition {
 
     @AutoValue.Builder
     public static abstract class Builder {
-        @NotNull
-        @JsonProperty(ID)
-        public abstract Builder id(@NotNull String id);
 
         @NotNull
         @JsonProperty(NAME)

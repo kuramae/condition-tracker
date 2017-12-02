@@ -31,7 +31,6 @@ public class ConditioConfiguration extends Configuration {
         return mediClientConfiguration;
     }
 
-
     public KafkaConfiguration getKafkaConfiguration() {
         return kafkaConfiguration;
     }

@@ -34,27 +34,29 @@ public class DoctorResource {
     }
 
 
-    @POST
+    @PUT
     @Timed
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public String putDoctor(Person doctor) throws StorageException, DomainConstraintViolated, SaveEventException, JsonProcessingException {
-        Person doctorWithId = Person.makeId(doctor);
-        eventServiceProducer.saveEvent(Event.builder().type("put_doctor").key(doctorWithId.getId()).content(doctorWithId).build());
-        return personDAO.insertDoctor(doctorWithId);
+        String result = personDAO.insertDoctor(doctor);
+        eventServiceProducer.saveEvent(Event.<Person>builder().type("put_doctor").key(doctor.getEmail()).content(doctor).build());
+        return result;
     }
 
-    @POST
+    @PUT
     @Timed
     @Path("{doctorId}/patient/{patientId}")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Long> addPatient(@PathParam("doctorId") String doctorId,
                           @PathParam("patientId")String patientId) throws DomainConstraintViolated, StorageException, SaveEventException, JsonProcessingException {
-        eventServiceProducer.saveEvent(Event.builder()
+        Map<String, Long> result = personDAO.addPatient(doctorId, patientId);
+        eventServiceProducer.saveEvent(Event.<Map<String, String>>builder()
                 .type("add_patient")
                 .key(String.join(":", doctorId, patientId))
                 .content(ImmutableMap.of("doctorId", doctorId, "patientId", patientId))
                 .build());
-        return personDAO.addPatient(doctorId, patientId);
+        return result;
     }
 }

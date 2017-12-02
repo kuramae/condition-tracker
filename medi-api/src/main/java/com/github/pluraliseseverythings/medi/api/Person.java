@@ -14,17 +14,12 @@ import javax.validation.constraints.NotNull;
 @JsonDeserialize(builder = AutoValue_Person.Builder.class)
 public abstract class Person {
 
-    public static final String ID = "id";
     public static final String NAME = "name";
     public static final String EMAIL = "email";
     public static final String ADDRESS = "address";
 
     public Person() {
     }
-
-    @Nullable
-    @JsonProperty(ID)
-    public abstract String getId();
 
     @NotNull
     @JsonProperty(NAME)
@@ -41,15 +36,10 @@ public abstract class Person {
 
     public abstract Builder toBuilder();
 
-    public static Person makeId(Person person) {
-        String existingId = person.getId();
-        String partial = existingId == null ? Ids.uniqueID(): existingId;
-        return person.toBuilder().id(partial).build();
-    }
 
     @NotNull
     public static Builder builder() {
-        return new AutoValue_Person.Builder().id(null);
+        return new AutoValue_Person.Builder();
     }
 
     @JsonCreator
@@ -57,9 +47,6 @@ public abstract class Person {
 
     @AutoValue.Builder
     public static abstract class Builder {
-        @Nullable
-        @JsonProperty(ID)
-        public abstract Builder id(@NotNull String id);
 
         @NotNull
         @JsonProperty(NAME)

@@ -1,7 +1,9 @@
 package com.github.pluraliseseverythings.medi.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.pluraliseseverythings.medi.api.Person.Builder;
 import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nullable;
@@ -21,9 +23,6 @@ public abstract class Consultation {
     public Consultation() {
     }
 
-    @Nullable
-    @JsonProperty(ID)
-    public abstract String getId();
 
     @NotNull
     @JsonProperty(DOCTOR_ID)
@@ -45,10 +44,8 @@ public abstract class Consultation {
     @JsonProperty(DESCRIPTION)
     public abstract String getDescription();
 
-    public static Consultation makeId(Consultation consultation) {
-        String existingId = consultation.getId();
-        String partial = existingId == null ? Ids.uniqueID(): existingId;
-        return consultation.toBuilder().id(partial).build();
+    public String getId() {
+        return String.format("%s_%s_%s", getDoctorId(), getPatientId(), "" + getStart());
     }
 
     public abstract Builder toBuilder();
@@ -58,11 +55,11 @@ public abstract class Consultation {
         return new AutoValue_Consultation.Builder();
     }
 
+    @JsonCreator
+    private static Builder create() { return Consultation.builder(); }
+
     @AutoValue.Builder
     public static abstract class Builder {
-        @NotNull
-        @JsonProperty(ID)
-        public abstract Builder id(@NotNull String id);
 
         @NotNull
         @JsonProperty(DOCTOR_ID)

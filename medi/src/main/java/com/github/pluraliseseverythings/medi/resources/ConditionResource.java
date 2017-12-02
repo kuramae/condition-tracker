@@ -35,12 +35,12 @@ public class ConditionResource {
 
     @POST
     @Timed
-    public void putCondition(Condition condition) throws SaveEventException, JsonProcessingException {
-        Condition conditionWithId = Condition.makeId(condition);
-        eventServiceProducer.saveEvent(Event.builder().type("put_condition").key(conditionWithId.getId()).content(conditionWithId).build());
+    public String putCondition(Condition condition) throws SaveEventException, JsonProcessingException {
+        String key = conditionDAO.insertCondition(condition);
+        eventServiceProducer.saveEvent(Event.<Condition>builder().type("put_condition").key(condition.getId()).content(condition).build());
         if (condition.getSeverity().equals(HIGH)) {
-            eventServiceProducer.saveEvent(Event.builder().type("alert").key(conditionWithId.getId()).content(conditionWithId).build());
+            eventServiceProducer.saveEvent(Event.<Condition>builder().type("alert").key(condition.getId()).content(condition).build());
         }
-        conditionDAO.insertCondition(condition);
+        return key;
     }
 }

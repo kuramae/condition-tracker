@@ -19,12 +19,13 @@ public class ConditionDAO {
         this.jedisPool = jedisPool;
     }
 
-    public void insertCondition(Condition condition) throws JsonProcessingException {
+    public String insertCondition(Condition condition) throws JsonProcessingException {
         String key = Ids.id(CONDITION, condition.getId());
         // Write to DB
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.set(key, MAPPER.writeValueAsString(condition));
         }
+        return key;
     }
 
     public Condition getCondition(String id) throws IOException {

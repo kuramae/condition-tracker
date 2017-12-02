@@ -4,10 +4,12 @@ import com.github.pluraliseseverythings.conditio.config.ConditioConfiguration;
 import com.github.pluraliseseverythings.conditio.core.StatsComputer;
 import com.github.pluraliseseverythings.conditio.db.ConditionStatsDAO;
 import com.github.pluraliseseverythings.conditio.resources.ConditionResource;
+import com.github.pluraliseseverythings.medi.api.PatientCondition;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import java.util.concurrent.Future;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import pluraliseseverythings.events.EventServiceConsumer;
 import pluraliseseverythings.events.KafkaEventServiceConsumer;
@@ -22,6 +24,7 @@ import java.util.concurrent.Executors;
 public class ConditioApplication extends Application<ConditioConfiguration> {
 
     public static final String ADD_CONDITION = "add_condition";
+    private Future<?> consumerFuture;
 
     public static void main(final String[] args) throws Exception {
         new ConditioApplication().run(args);
@@ -43,8 +46,9 @@ public class ConditioApplication extends Application<ConditioConfiguration> {
         Pool<Jedis> jedisPool = configureRedis(configuration);
         ConditionStatsDAO conditionStatsDAO = new ConditionStatsDAO(jedisPool);
         StatsComputer statsComputer = new StatsComputer(conditionStatsDAO);
-        eventServiceProducer.consume(ADD_CONDITION, statsComputer.eventConsumer(),
-                Executors.newFixedThreadPool(configuration.getEventExecutionThreads()));
+        consumerFuture = Executors.newSingleThreadExecutor().submit(
+        eventServiceProducer.<PatientCondition>consume(ADD_CONDITION, statsComputer.eventConsumer(),
+                Executors.newFixedThreadPool(configuration.getEventExecutionThreads()), PatientCondition.class));
         final Client mediClient = new JerseyClientBuilder(environment)
                 .using(configuration.getMediClientConfiguration())
                 .build(getName());

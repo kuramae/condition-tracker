@@ -40,25 +40,25 @@ public class PatientResource {
         return personDAO.countType(PersonDAO.PATIENT);
     }
 
-    @POST
+    @PUT
     @Timed
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public String putPatient(Person patient) throws StorageException, SaveEventException, JsonProcessingException, DomainConstraintViolated {
-        Person patientWithId = Person.makeId(patient);
-        eventServiceProducer.saveEvent(Event.builder().type("put_patient").content(patientWithId).key(patientWithId.getId()).build());
-        return personDAO.insertPatient(patientWithId);
+        String result = personDAO.insertPatient(patient);
+        eventServiceProducer.saveEvent(Event.<Person>builder().type("put_patient").content(patient).key(patient.getEmail()).build());
+        return result;
     }
 
     @PUT
     @Timed
     @Path("{patientId}/condition/{conditionId}")
-    public void addCondition(@QueryParam("conditionId") String conditionId,
-                             @QueryParam("patientId") String patientId) throws SaveEventException, JsonProcessingException {
+    public void addCondition(@PathParam("conditionId") String conditionId,
+                             @PathParam("patientId") String patientId) throws SaveEventException, JsonProcessingException {
         boolean added = personDAO.addCondition(conditionId, patientId);
         // This is an idempotent operation, we can avoid event duplicates
         if (added) {
-            eventServiceProducer.saveEvent(Event.builder()
+            eventServiceProducer.saveEvent(Event.<PatientCondition>builder()
                     .type("add_condition")
                     // TODO better as an object
                     .content(PatientCondition.builder().conditionId(conditionId).patientId(patientId).build())

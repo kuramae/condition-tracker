@@ -27,7 +27,7 @@ public class KafkaEventServiceProducer implements EventServiceProducer {
                         if (e != null) {
                             LOG.error("Error while sending event {}", event, e);
                         } else {
-                            LOG.debug("Offset {} for event wiht type {} and key {}", metadata.offset(), event.getType(), event.getKey());
+                            LOG.info("Offset {} for event with type {} and key {}", metadata.offset(), event.getType(), event.getKey());
                         }
                     }).get();
         } catch (ExecutionException | InterruptedException e) {

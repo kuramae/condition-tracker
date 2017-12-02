@@ -90,19 +90,20 @@ public class PersonDAO {
 
     private String insertPerson(Person person, String type, boolean uniqueEmail) throws InternalFormatException, StorageException, DomainConstraintViolated {
         try (Jedis jedis = jedisPool.getResource()) {
-            String emailId = Ids.id(EMAIL, person.getEmail());
-            if (uniqueEmail) {
-                jedis.watch(emailId);
-                String emailExists = jedis.get(emailId);
-                if (emailExists != null) {
-                    throw new DomainConstraintViolated("The email exists already " + person.getEmail() + " assigned to " + emailExists);
-                }
-            }
-            String key = Ids.id(type, person.getId());
+            // This logic is to check that the email is unique in case we want to do just a create and not update
+            //            String emailId = Ids.id(EMAIL, person.getEmail());
+            //            if (uniqueEmail) {
+            //                jedis.watch(emailId);
+            //                String emailExists = jedis.get(emailId);
+            //                if (emailExists != null) {
+            //                    throw new DomainConstraintViolated("The email exists already " + person.getEmail() + " assigned to " + emailExists);
+            //                }
+            //            }
+            String key = Ids.id(type, person.getEmail());
             Transaction transaction = jedis.multi();
             transaction.set(key, objectMapper.writeValueAsString(person));
             transaction.sadd(person.getName(), key);
-            transaction.set(emailId, key);
+            //            transaction.set(emailId, key);
             transaction.incr(type);
             RedisUtil.checkResult(transaction.exec());
             return key;

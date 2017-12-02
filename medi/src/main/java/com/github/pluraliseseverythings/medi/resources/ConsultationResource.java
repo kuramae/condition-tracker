@@ -30,11 +30,13 @@ public class ConsultationResource {
         return consultationDAO.findConsultationById(id);
     }
 
-    @POST
+    @PUT
     @Timed
-    public void putConsultation(Consultation consultation) throws DomainConstraintViolated, JsonProcessingException, SaveEventException {
-        Consultation consultationWithId = Consultation.makeId(consultation);
-        eventServiceProducer.saveEvent(Event.builder().type("put_consultation").key(consultationWithId.getId()).content(consultationWithId).build());
-        consultationDAO.insertConsultation(consultationWithId);
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String putConsultation(Consultation consultation) throws DomainConstraintViolated, JsonProcessingException, SaveEventException {
+        String result = consultationDAO.insertConsultation(consultation);
+        eventServiceProducer.saveEvent(Event.<Consultation>builder().type("put_consultation").key(consultation.getId()).content(consultation).build());
+        return result;
     }
 }

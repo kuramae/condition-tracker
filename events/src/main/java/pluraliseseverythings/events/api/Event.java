@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @AutoValue
 @JsonDeserialize(builder = AutoValue_Event.Builder.class)
-public abstract class Event {
+public abstract class Event<T> {
     private static final String CONTENT = "content";
     private static final String TIMESTAMP = "timestamp";
     private static final String TYPE = "type";
@@ -16,7 +16,7 @@ public abstract class Event {
 
     @NotNull
     @JsonProperty(CONTENT)
-    public abstract Object getContent();
+    public abstract T getContent();
 
     @NotNull
     @JsonProperty(KEY)
@@ -31,29 +31,29 @@ public abstract class Event {
     public abstract long getTimestamp();
 
     @NotNull
-    public static Builder builder() {
-        return new AutoValue_Event.Builder().timestamp(System.currentTimeMillis());
+    public static <T> Builder<T> builder() {
+        return new AutoValue_Event.Builder<T>().timestamp(System.currentTimeMillis());
     }
 
     @AutoValue.Builder
-    public static abstract class Builder {
+    public static abstract class Builder<T> {
         @NotNull
         @JsonProperty(CONTENT)
-        public abstract Builder content(@NotNull Object content);
+        public abstract Builder<T> content(@NotNull T content);
 
         @NotNull
         @JsonProperty(TIMESTAMP)
-        public abstract Builder timestamp(@NotNull long timestamp);
+        public abstract Builder<T> timestamp(@NotNull long timestamp);
 
         @NotNull
         @JsonProperty(TYPE)
-        public abstract Builder type(@NotNull String type);
+        public abstract Builder<T> type(@NotNull String type);
 
         @NotNull
         @JsonProperty(KEY)
-        public abstract Builder key(@NotNull String key);
+        public abstract Builder<T> key(@NotNull String key);
 
         @NotNull
-        public abstract Event build();
+        public abstract Event<T> build();
     }
 }
